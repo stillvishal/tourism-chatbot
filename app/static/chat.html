@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jharkhand Travel Assistant</title>
+<style>
+  :root {
+    --bg: #f4f7f5; --surface: #ffffff; --ink: #14281f; --muted: #5d7167; --line: #dfe7e2;
+    --brand: #1f6b4f; --brand-ink: #ffffff; --user: #1f6b4f; --bot: #ffffff;
+    --low: #1b8a4b; --moderate: #b98300; --high: #d4660d; --very_high: #c62828;
+    --low-bg: #e4f4ea; --moderate-bg: #fbf1d4; --high-bg: #fde9d8; --very_high-bg: #fbe0e0;
+    --shadow: 0 1px 2px rgba(20,40,31,.06), 0 4px 14px rgba(20,40,31,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1914; --surface: #172420; --ink: #e8f1ec; --muted: #93a79c; --line: #263832;
+      --brand: #3fae83; --brand-ink: #08150f; --user: #2a8c68; --bot: #172420;
+      --low: #5fd08a; --moderate: #e6b73f; --high: #f0914a; --very_high: #ff7b7b;
+      --low-bg: #16332a; --moderate-bg: #38310f; --high-bg: #3a2616; --very_high-bg: #3d1b1b;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .app { display: flex; flex-direction: column; height: 100%; max-width: 560px; margin: 0 auto; background: var(--bg); }
+
+  header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--brand); color: var(--brand-ink); }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 20px; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 650; }
+  header p { margin: 0; font-size: 12px; opacity: .85; }
+
+  #log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+  .msg { max-width: 88%; padding: 10px 13px; border-radius: 16px; box-shadow: var(--shadow); word-wrap: break-word; white-space: pre-wrap; }
+  .msg.bot { align-self: flex-start; background: var(--bot); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .msg.user { align-self: flex-end; background: var(--user); color: #fff; border-bottom-right-radius: 4px; }
+  .typing { align-self: flex-start; color: var(--muted); font-size: 13px; padding-left: 4px; }
+
+  /* ---- cards ---- */
+  .card { align-self: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); }
+  .card h3 { margin: 0; font-size: 15px; }
+  .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 650; }
+  .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .LOW { color: var(--low); background: var(--low-bg); } .MODERATE { color: var(--moderate); background: var(--moderate-bg); }
+  .HIGH { color: var(--high); background: var(--high-bg); } .VERY_HIGH { color: var(--very_high); background: var(--very_high-bg); }
+  .fill-LOW { background: var(--low); } .fill-MODERATE { background: var(--moderate); }
+  .fill-HIGH { background: var(--high); } .fill-VERY_HIGH { background: var(--very_high); }
+
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .big { font-size: 34px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+  .big small { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+  .meter { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 10px 0 4px; }
+  .meter > div { height: 100%; border-radius: 99px; }
+  .row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip-d { font-size: 12px; padding: 3px 9px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); color: var(--muted); }
+
+  .item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .item:first-of-type { border-top: 0; }
+  .rank { width: 24px; height: 24px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font-size: 12px; font-weight: 700; display: grid; place-items: center; flex: none; }
+  .item .grow { flex: 1; min-width: 0; } .item b { display: block; } .item .sub { margin: 0; }
+
+  .bars { display: flex; align-items: flex-end; gap: 5px; height: 110px; margin-top: 12px; }
+  .bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; min-width: 0; }
+  .bar i { width: 100%; border-radius: 5px 5px 0 0; min-height: 3px; display: block; }
+  .bar span { font-size: 10.5px; color: var(--muted); margin-top: 4px; white-space: nowrap; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+
+  /* ---- input ---- */
+  #suggest { display: flex; gap: 8px; padding: 6px 16px 8px; overflow-x: auto; scrollbar-width: none; }
+  #suggest button { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--brand); padding: 7px 12px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer; }
+  #suggest button:hover { border-color: var(--brand); }
+  form { display: flex; gap: 8px; padding: 10px 16px 16px; background: var(--bg); }
+  input { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  form button { border: 0; background: var(--brand); color: var(--brand-ink); padding: 0 18px; border-radius: 12px; font: inherit; font-weight: 650; cursor: pointer; }
+  form button:disabled { opacity: .5; cursor: default; }
+  @media (prefers-reduced-motion: reduce) { #log { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="avatar" aria-hidden="true">🌿</div>
+    <div><h1>Jharkhand Travel Assistant</h1><p>Crowd predictions &amp; smart recommendations</p></div>
+    <span id="mode" title="Chat engine" style="margin-left:auto;white-space:nowrap;flex:none;font-size:11px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.2)"></span>
+  </header>
+  <main id="log" aria-live="polite"></main>
+  <div id="suggest"></div>
+  <form id="form" autocomplete="off">
+    <input id="input" type="text" maxlength="500" placeholder="Ask about a place or date…" aria-label="Your message">
+    <button id="send" type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+// ===== CONFIG (web dev: only change this if the API lives on another origin) =====
+// Same-origin by default (page is served by FastAPI at /chat-ui). Example for another host:
+// const API_BASE = "https://your-api.example.com";
+const API_BASE = "";
+// =================================================================================
+
+const log = document.getElementById("log"), form = document.getElementById("form");
+const input = document.getElementById("input"), sendBtn = document.getElementById("send");
+const suggestBox = document.getElementById("suggest");
+const LEVEL = { LOW: "Low", MODERATE: "Moderate", HIGH: "High", VERY_HIGH: "Very high" };
+let context = {};
+let history = [];   // recent turns, sent so the AI remembers the conversation
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;   // textContent => no HTML injection
+  return n;
+}
+const fmtDate = (iso, opts) => new Date(iso + "T00:00:00").toLocaleDateString("en-IN", opts || { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const num = (n) => Number(n).toLocaleString("en-IN");
+const badge = (lvl) => el("span", "badge " + lvl, LEVEL[lvl] || lvl);
+const scroll = () => { log.scrollTop = log.scrollHeight; };
+
+function addMsg(text, who) { const m = el("div", "msg " + who, text); log.appendChild(m); scroll(); }
+
+// ---- card renderers -------------------------------------------------------
+function predictionCard(d) {
+  const c = el("div", "card");
+  const top = el("div", "top");
+  const left = el("div"); left.append(el("h3", "", d.destination), el("div", "sub", fmtDate(d.date)));
+  top.append(left, badge(d.crowd_level)); c.appendChild(top);
+  const big = el("div", "big", num(d.predicted_visitors)); big.appendChild(el("small", "", "expected visitors")); c.appendChild(big);
+  const meter = el("div", "meter"); const fill = el("div", "fill-" + d.crowd_level);
+  fill.style.width = Math.min(d.occupancy_pct, 100) + "%"; meter.appendChild(fill); c.appendChild(meter);
+  const r1 = el("div", "row"); r1.append(el("span", "", d.occupancy_pct + "% of capacity (" + num(d.capacity) + ")"), el("span", "", "Confidence " + Math.round(d.confidence_pct) + "%")); c.appendChild(r1);
+  const r2 = el("div", "row"); r2.style.marginTop = "4px"; r2.append(el("span", "", "Likely range"), el("span", "", num(d.interval_low) + " – " + num(d.interval_high))); c.appendChild(r2);
+  const chips = el("div", "chips"); d.drivers.forEach(x => chips.appendChild(el("span", "chip-d", x))); c.appendChild(chips);
+  return c;
+}
+
+function recommendationsCard(d) {
+  const c = el("div", "card"); c.append(el("h3", "", "Top picks"), el("div", "sub", fmtDate(d.date)));
+  d.items.forEach((it, i) => {
+    const row = el("div", "item"); row.appendChild(el("div", "rank", String(i + 1)));
+    const g = el("div", "grow"); g.append(el("b", "", it.destination), el("div", "sub", "~" + num(it.predicted_visitors) + " visitors · " + it.category.replace("_", " ")));
+    row.append(g, badge(it.crowd_level)); c.appendChild(row);
+  });
+  return c;
+}
+
+function barsCard(title, subtitle, items, labelFn, valueKey) {
+  const c = el("div", "card"); c.append(el("h3", "", title), el("div", "sub", subtitle));
+  const max = Math.max(...items.map(x => x[valueKey]), 1); const bars = el("div", "bars");
+  items.forEach(x => {
+    const b = el("div", "bar"); const i = el("i", "fill-" + x.crowd_level);
+    i.style.height = Math.max(3, (x[valueKey] / max) * 88) + "%"; i.title = num(x[valueKey]) + " visitors · " + LEVEL[x.crowd_level];
+    b.append(i, el("span", "", labelFn(x))); bars.appendChild(b);
+  });
+  c.appendChild(bars);
+  const lg = el("div", "legend");
+  Object.keys(LEVEL).forEach(k => { const s = el("span"); const i = el("i", "fill-" + k); s.append(i, LEVEL[k]); lg.appendChild(s); });
+  c.appendChild(lg); return c;
+}
+
+function forecastCard(d) {
+  const sub = d.change_pct == null ? "Next 7 days" : "Next 7 days · " + (d.change_pct >= 0 ? "+" : "") + d.change_pct + "% vs previous week";
+  return barsCard(d.destination, sub, d.days, x => fmtDate(x.date, { weekday: "short" }), "predicted_visitors");
+}
+function monthlyCard(d) {
+  return barsCard(d.destination + " – seasonal demand", "Typical daily visitors by month · peak " + d.peak_month, d.months, x => x.month, "avg_visitors");
+}
+
+const RENDER = { prediction: predictionCard, recommendations: recommendationsCard, forecast: forecastCard, monthly: monthlyCard };
+
+// ---- chat flow ------------------------------------------------------------
+function setSuggestions(list) {
+  suggestBox.replaceChildren();
+  (list || []).forEach(s => { const b = el("button", "", s); b.type = "button"; b.onclick = () => send(s); suggestBox.appendChild(b); });
+}
+
+async function send(text) {
+  text = (text || "").trim(); if (!text) return;
+  addMsg(text, "user"); input.value = ""; setSuggestions([]);
+  sendBtn.disabled = true; const t = el("div", "typing", "Assistant is typing…"); log.appendChild(t); scroll();
+  try {
+    const res = await fetch(API_BASE + "/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text, context, history: history.slice(-10) }) });
+    if (!res.ok) throw new Error(res.status === 503 ? "model-not-ready" : "http-" + res.status);
+    const data = await res.json(); t.remove();
+    context = data.context || {};
+    addMsg(data.reply, "bot");
+    history.push({ role: "user", content: text }, { role: "assistant", content: data.reply });
+    document.getElementById("mode").textContent = data.mode === "ai" ? "AI mode" : "Basic mode";
+    (data.cards || []).forEach(card => { const r = RENDER[card.type]; if (r) log.appendChild(r(card.data)); });
+    setSuggestions(data.suggestions); scroll();
+  } catch (e) {
+    t.remove();
+    addMsg(e.message === "model-not-ready" ? "The prediction model isn't trained yet. Please try again later." : "Sorry, I couldn't reach the server. Please try again.", "bot");
+  } finally { sendBtn.disabled = false; input.focus(); }
+}
+
+form.addEventListener("submit", e => { e.preventDefault(); send(input.value); });
+addMsg("Namaste! 🙏 I can tell you how crowded a Jharkhand destination will be on a given day, and suggest where to go.", "bot");
+setSuggestions(["Where should I go this weekend?", "How crowded is Dassam Falls tomorrow?", "Best time to visit Netarhat", "Show all destinations"]);
+input.focus();
+</script>
+</body>
+</html>

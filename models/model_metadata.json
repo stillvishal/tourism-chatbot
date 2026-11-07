@@ -1,0 +1,42 @@
+{
+  "best_model": "GradientBoosting",
+  "metrics": [
+    {
+      "model": "RandomForest",
+      "MAE": 202.0,
+      "MAPE_%": 9.32,
+      "R2": 0.9704
+    },
+    {
+      "model": "GradientBoosting",
+      "MAE": 191.0,
+      "MAPE_%": 9.11,
+      "R2": 0.9756
+    }
+  ],
+  "residual_std_by_destination": {
+    "Betla National Park": 122.6,
+    "Dassam Falls": 202.0,
+    "Deoghar": 704.4,
+    "Hundru Falls": 232.3,
+    "Netarhat": 134.0,
+    "Patratu Valley": 166.4
+  },
+  "feature_importances": {
+    "destination": 0.6196,
+    "month_sin": 0.1496,
+    "is_festival": 0.0745,
+    "month_cos": 0.057,
+    "month": 0.0319,
+    "day_of_year": 0.0297,
+    "day_of_week": 0.0134,
+    "is_weekend": 0.0134,
+    "is_holiday": 0.0058,
+    "temperature_c": 0.0028,
+    "rainfall_mm": 0.0023,
+    "is_long_weekend": 0.0
+  },
+  "train_end": "2024-12-31",
+  "n_rows": 8766,
+  "data_note": "Trained on synthetic data unless data/tourism_data.csv was replaced with real records."
+}

@@ -1,0 +1,51 @@
+<!doctype html>
+<!--
+  EXAMPLE for the web developer: how to add the Jharkhand chatbot to ANY page of the website.
+  Copy the <style>, the <button>/<div> and the <script> into your site (or just open this file to try it).
+  The chatbot itself is one page served by the FastAPI backend: CHAT_URL below.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Website with chatbot (example)</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 40px 20px; background: #f4f7f5; }
+
+  /* ---------- chat widget: floating button + slide-up panel ---------- */
+  #chat-fab { position: fixed; right: 20px; bottom: 20px; width: 58px; height: 58px; border-radius: 50%;
+              border: 0; background: #1f6b4f; color: #fff; font-size: 26px; cursor: pointer;
+              box-shadow: 0 4px 14px rgba(0,0,0,.25); z-index: 9999; }
+  #chat-panel { position: fixed; right: 20px; bottom: 90px; width: 380px; height: 600px; max-height: calc(100vh - 110px);
+                border-radius: 16px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,.3);
+                display: none; z-index: 9999; background: #fff; }
+  #chat-panel.open { display: block; }
+  #chat-panel iframe { width: 100%; height: 100%; border: 0; }
+  @media (max-width: 480px) { #chat-panel { right: 0; bottom: 0; width: 100vw; height: 100vh; max-height: none; border-radius: 0; } }
+</style>
+</head>
+<body>
+  <h1>Your tourism website</h1>
+  <p>Your normal page content goes here. The chat button is at the bottom-right corner.</p>
+
+  <button id="chat-fab" aria-label="Open travel assistant">💬</button>
+  <div id="chat-panel"></div>
+
+  <script>
+    // >>> The ONLY thing to change: the address where the FastAPI backend is running <<<
+    const CHAT_URL = "http://127.0.0.1:8000/chat-ui";
+
+    const fab = document.getElementById("chat-fab"), panel = document.getElementById("chat-panel");
+    fab.addEventListener("click", () => {
+      if (!panel.firstChild) {                     // load the chat only the first time it is opened
+        const f = document.createElement("iframe"); f.src = CHAT_URL; f.title = "Travel assistant"; panel.appendChild(f);
+      }
+      const open = panel.classList.toggle("open");
+      fab.textContent = open ? "✕" : "💬";
+    });
+
+    // ---- Alternative: open the chat in a separate popup window instead ----
+    // <button onclick="window.open(CHAT_URL, 'chat', 'width=420,height=680')">Chat with us</button>
+  </script>
+</body>
+</html>
